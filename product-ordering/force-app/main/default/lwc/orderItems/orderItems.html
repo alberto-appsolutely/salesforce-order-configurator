@@ -1,0 +1,33 @@
+<template>
+    <div class="slds-is-relative">
+        <lightning-spinner if:true={isLoading}></lightning-spinner>
+        <lightning-layout class="slds-card slds-card_boundary" multiple-rows>
+            <c-component-header
+                title={title}
+                subtitle="Manage order items"
+                icon-name="standard:work_order"
+                icon-class="slds-icon-standard-word_order"
+                class="slds-col slds-size_1-of-1"
+            >
+            </c-component-header>
+
+            <lightning-datatable
+                if:false={orderItemsIsEmpty}
+                class="slds-col slds-size_1-of-1"
+                key-field="id"
+                data={orderItemsData}
+                columns={columns}
+                onrowaction={handleRowAction}
+                hide-checkbox-column
+            >
+            </lightning-datatable>
+            <lightning-layout-item
+                if:true={orderItemsIsEmpty}
+                size="12"
+                class="slds-text-align_center slds-text-heading_medium empty-lines"
+            >
+                No order items
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+</template>
