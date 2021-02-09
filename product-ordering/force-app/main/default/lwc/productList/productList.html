@@ -11,7 +11,7 @@
         >
         </c-component-header>
 
-        <lightning-layout-item size="12">
+        <lightning-layout-item size="12" class="product-datatable">
             <lightning-datatable
                 key-field="Id"
                 data={products}
@@ -22,7 +22,11 @@
                 sorted-by={sortedBy}
                 onsort={onHandleSort}
                 hide-checkbox-column
+                enable-infinite-loading
+                is-loading={isLoading}
+                onloadmore={onLoadMoreHandler}
             >
+                >
             </lightning-datatable>
         </lightning-layout-item>
     </lightning-layout>
