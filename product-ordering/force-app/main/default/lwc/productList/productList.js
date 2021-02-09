@@ -1,5 +1,5 @@
 import { LightningElement, wire, track } from "lwc";
-import queryProducts from "@salesforce/apex/ProductListController.queryStandardPricebookProducts";
+import queryStandardPricebookProducts from "@salesforce/apex/ProductListController.queryStandardPricebookProducts";
 import { publish, MessageContext } from "lightning/messageService";
 import productOrderingChannel from "@salesforce/messageChannel/productOrdering__c";
 import { keyByField } from "c/helper";
@@ -33,21 +33,37 @@ export default class ProductList extends LightningElement {
     products = [];
     priceBookEntriesByProductId = {};
     @track isLoading = false;
+    @track isLoadingMore = false;
+
+    productPage = 1;
+    @track enableInfiniteLoading = true;
 
     /** Call the controller to query the produts and related price book entries */
     async connectedCallback() {
         this.isLoading = true;
-        const res = await queryProducts();
+        await this.queryProductsPage();
+        this.isLoading = false;
+    }
+
+    async queryProductsPage() {
+        this.isLoadingMore = true;
+        const res = await queryStandardPricebookProducts({ page: this.productPage });
         const { products, priceBookEntries } = res;
 
         this.priceBookEntriesByProductId = keyByField(priceBookEntries, "Product2Id");
-        this.products = products.map((p) => ({
+        const productPage = products.map((p) => ({
             id: p.Id,
             name: p.Name,
             productUrl: `/${p.Id}`,
             unitPrice: this.priceBookEntriesByProductId[p.Id] ? this.priceBookEntriesByProductId[p.Id].UnitPrice : 0
         }));
-        this.isLoading = false;
+
+        this.products = this.products.concat(productPage);
+        this.productPage++;
+        if (productPage.length <= 0) {
+            this.enableInfiniteLoading = false;
+        }
+        this.isLoadingMore = false;
     }
 
     /** Handle the datatable row actions */
@@ -73,5 +89,9 @@ export default class ProductList extends LightningElement {
             productId,
             priceBookEntryId: this.priceBookEntriesByProductId[productId].Id
         });
+    }
+
+    onLoadMoreHandler() {
+        if (this.enableInfiniteLoading) this.queryProductsPage();
     }
 }
