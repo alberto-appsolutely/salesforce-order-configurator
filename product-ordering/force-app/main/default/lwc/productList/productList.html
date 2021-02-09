@@ -1,0 +1,29 @@
+<template>
+    <lightning-layout class="slds-is-relative slds-card slds-card_boundary slds-grid slds-wrap">
+        <lightning-spinner if:true={isLoading}></lightning-spinner>
+
+        <c-component-header
+            title="Products"
+            subtitle="Products with standard pricebook prices"
+            class="slds-col slds-size_1-of-1"
+            icon-name="standard:product"
+            icon-class="slds-icon-standard-product"
+        >
+        </c-component-header>
+
+        <lightning-layout-item size="12">
+            <lightning-datatable
+                key-field="Id"
+                data={products}
+                columns={columns}
+                onrowaction={handleRowAction}
+                default-sort-direction={defaultSortDirection}
+                sorted-direction={sortDirection}
+                sorted-by={sortedBy}
+                onsort={onHandleSort}
+                hide-checkbox-column
+            >
+            </lightning-datatable>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>
