@@ -55,7 +55,10 @@ Run the script to deploy the components, after deploying configure the flexipage
 
 ```bash
 # deploy the components to the org
-sfdx force:source:deploy --manifest ./manifest/package.xml
+sfdx force:source:deploy --manifest ./manifest/package.xml -u username
+
+# open the flexipage in the app builder
+sfdx force:source:open -f force-app/main/default/flexipages/Order.flexipage-meta.xml -u username
 ```
 
 To test the callouts add the url https://sf-order.requestcatcher.com to the remote site settings and open [Request Catcher](https://sf-order.requestcatcher.com) to view the order after sending it.
