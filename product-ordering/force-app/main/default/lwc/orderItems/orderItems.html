@@ -28,6 +28,16 @@
             >
                 No order items
             </lightning-layout-item>
+
+            <lightning-layout-item class="slds-col_bump-left slds-p-around_medium">
+                <lightning-button
+                    onclick={handleSendOrderClicked}
+                    label="Send order"
+                    variant="brand"
+                    disabled={orderActivated}
+                >
+                </lightning-button>
+            </lightning-layout-item>
         </lightning-layout>
     </div>
 </template>
