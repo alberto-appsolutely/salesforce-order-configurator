@@ -58,7 +58,7 @@ Run the script to deploy the components, after deploying configure the flexipage
 sfdx force:source:deploy --manifest ./manifest/package.xml
 ```
 
-To test the callouts create a [Request Catcher](https://requestcatcher.com/) endpoint and enable the generated endpoint url in Salesforce.
+To test the callouts add the url https://sf-order.requestcatcher.com to the remote site settings and open [Request Catcher](https://sf-order.requestcatcher.com) to view the order after sending it.
 
 ## Local development
 
@@ -72,7 +72,7 @@ npm install
 
 Use the following code to insert dummy data to test the infinite loading of the datatable.
 
-```java
+```apex
 List<Product2> products = new List<Product2>();
 for (Integer i = 1; i < 100; i++) {
     String productNumber = i < 10 ? '0' + i : '' + i;
