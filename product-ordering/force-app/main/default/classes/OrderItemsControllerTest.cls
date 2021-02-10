@@ -1,12 +1,14 @@
 @isTest
 private class OrderItemsControllerTest {
+    final static String ACCOUNT_NAME = 'Order Test Account';
+
     @TestSetup
     static void setup() {
         List<Product2> products = TestDataUtils.insertTestProducts(2);
 
         insert TestDataUtils.createStandardPricebookEntry(products[0].Id);
 
-        Account account = new Account(Name = 'Order Test Account');
+        Account account = new Account(Name = ACCOUNT_NAME);
         insert account;
 
         Contract contract = new Contract(
@@ -36,7 +38,7 @@ private class OrderItemsControllerTest {
         PriceBookEntry priceBookEntry = [SELECT Id FROM PriceBookEntry LIMIT 1];
 
         //insert only one order item, queryOrderItems should return one record
-        insert new OrderItem(OrderId = order.Id, PriceBookEntryId = priceBookEntry.Id, UnitPrice = 100, Quantity = 1);
+        TestDataUtils.insertTestOrderItems(1, order.Id, priceBookEntry.Id, 100);
         List<OrderItem> orderItems = OrderItemsController.queryOrderItems(order.Id);
         System.assertEquals(1, orderItems.size());
     }
@@ -73,5 +75,34 @@ private class OrderItemsControllerTest {
 
     private static List<OrderItem> queryOrderItems() {
         return [SELECT Id, Quantity FROM OrderItem ORDER BY CreatedDate];
+    }
+
+    @isTest
+    static void generateOrderJSONTest() {
+        Integer unitPrice = 100;
+        Order order = [SELECT Id FROM Order LIMIT 1];
+        PriceBookEntry priceBookEntry = [SELECT Id FROM PriceBookEntry LIMIT 1];
+        TestDataUtils.insertTestOrderItems(2, order.Id, priceBookEntry.Id, unitPrice);
+
+        Test.startTest();
+
+        //serialize and deserialize the order
+        String jsonString = OrderItemsController.generateOrderJSON(order.Id);
+        OrderItemsController.RequestOrder requestOrder = (OrderItemsController.RequestOrder) JSON.deserialize(
+            jsonString,
+            OrderItemsController.RequestOrder.class
+        );
+
+        //check that the number of order items is 2, the account name and unit price match
+        System.assertEquals(2, requestOrder.orderProducts.size());
+        System.assertEquals(ACCOUNT_NAME, requestOrder.accountNumber);
+        System.assertEquals(unitPrice, requestOrder.orderProducts[0].unitPrice);
+
+        //use the http mock class test the callout
+        Test.setMock(HttpCalloutMock.class, new OkHttpCalloutMock());
+        Boolean orderStatus = OrderItemsController.sendOrder(order.Id);
+        System.assertEquals(true, orderStatus);
+
+        Test.stopTest();
     }
 }
