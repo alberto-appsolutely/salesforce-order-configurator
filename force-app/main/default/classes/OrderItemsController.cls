@@ -49,6 +49,11 @@ public with sharing class OrderItemsController {
 
     final static String ENDPOINT_URL = 'https://sf-order.requestcatcher.com/test';
 
+    /**
+     * Send the order to request catcher
+     *
+     * @param orderId The order id to be sent
+     */
     @AuraEnabled
     public static Boolean sendOrder(Id orderId) {
         HttpRequest req = new HttpRequest();
@@ -86,6 +91,11 @@ public with sharing class OrderItemsController {
         public List<RequestOrderProduct> orderProducts;
     }
 
+    /**
+     * Generate a JSON payload for the specified order
+     *
+     * @param orderId The order id to be sent
+     */
     @TestVisible
     private static String generateOrderJSON(Id orderId) {
         List<OrderItem> orderItems = queryOrderItems(orderId);
