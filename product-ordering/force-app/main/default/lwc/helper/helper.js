@@ -40,6 +40,22 @@ const TOAST_VARIANT = {
 };
 
 /**
+ * Displays an error toast showing the specified error message
+ *
+ * @param cmp The lwc component
+ * @param message The error message
+ */
+const showErrorMessageToast = (cmp, message) => {
+    cmp.dispatchEvent(
+        new ShowToastEvent({
+            title: "Error",
+            message,
+            variant: TOAST_VARIANT.ERROR
+        })
+    );
+};
+
+/**
  * Displays an error toast showing the error message contained in provided error object
  *
  * @param cmp The lwc component
@@ -60,13 +76,11 @@ const showErrorToast = (cmp, error) => {
         ];
     }
 
-    cmp.dispatchEvent(
-        new ShowToastEvent({
-            title: "Error",
-            message: errorMessages.join(" - "),
-            variant: TOAST_VARIANT.ERROR
-        })
-    );
+    if (error.body && error.body.message) {
+        errorMessages.push(error.body.message);
+    }
+
+    showErrorMessageToast(cmp, errorMessages.join(" - "));
 };
 
 /**
@@ -85,4 +99,20 @@ const showSuccessToast = (cmp, message) => {
     );
 };
 
-export { keyByField, groupByField, showErrorToast, showSuccessToast };
+/**
+ * Displays an info toast showing the specified message
+ *
+ * @param cmp The lwc component
+ * @param message The info message
+ */
+const showInfoToast = (cmp, message) => {
+    cmp.dispatchEvent(
+        new ShowToastEvent({
+            title: "Info",
+            message,
+            variant: TOAST_VARIANT.INFO
+        })
+    );
+};
+
+export { keyByField, groupByField, showErrorToast, showErrorMessageToast, showSuccessToast, showInfoToast };
