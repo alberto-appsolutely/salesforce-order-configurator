@@ -21,7 +21,7 @@
         <name>LightningComponentBundle</name>
     </types>
     <types>
-        <members>porductOrdering</members>
+        <members>*</members>
         <name>LightningMessageChannel</name>
     </types>
     <version>50.0</version>
