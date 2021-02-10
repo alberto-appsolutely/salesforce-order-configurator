@@ -46,4 +46,68 @@ public with sharing class OrderItemsController {
         orderItem.Quantity += 1;
         upsert orderItem;
     }
+
+    final static String ENDPOINT_URL = 'https://sf-order.requestcatcher.com/test';
+
+    @AuraEnabled
+    public static Boolean sendOrder(Id orderId) {
+        HttpRequest req = new HttpRequest();
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json;charset=UTF-8');
+        req.setEndpoint(ENDPOINT_URL);
+        req.setBody(generateOrderJSON(orderId));
+
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        Integer statusCode = res.getStatusCode();
+        if (statusCode != 200) {
+            return false;
+        } else {
+            Order order = new Order(Id = orderId, Status = 'Activated');
+            update order;
+        }
+        return true;
+    }
+
+    @TestVisible
+    class RequestOrderProduct {
+        public String name;
+        public String code;
+        public Decimal unitPrice;
+        public Integer quantity;
+    }
+
+    @TestVisible
+    class RequestOrder {
+        public String accountNumber;
+        public String orderNumber;
+        public String type;
+        public String status;
+        public List<RequestOrderProduct> orderProducts;
+    }
+
+    @TestVisible
+    private static String generateOrderJSON(Id orderId) {
+        List<OrderItem> orderItems = queryOrderItems(orderId);
+        Order order = [SELECT Account.Name, OrderNumber, Type, Status FROM Order WHERE Id = :orderId LIMIT 1];
+
+        List<RequestOrderProduct> requestOrderProducts = new List<RequestOrderProduct>();
+        for (OrderItem orderItem : orderItems) {
+            RequestOrderProduct rop = new RequestOrderProduct();
+            rop.name = orderItem.Product2.Name;
+            rop.code = orderItem.Product2.Name;
+            rop.unitPrice = orderItem.ListPrice;
+            rop.quantity = Integer.valueOf(orderItem.Quantity);
+            requestOrderProducts.add(rop);
+        }
+
+        RequestOrder requestOrder = new RequestOrder();
+        requestOrder.accountNumber = order.Account.Name;
+        requestOrder.orderNumber = order.OrderNumber;
+        requestOrder.type = order.Type;
+        requestOrder.status = order.Status;
+        requestOrder.orderProducts = requestOrderProducts;
+
+        return JSON.serialize(requestOrder);
+    }
 }
